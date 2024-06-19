@@ -14,7 +14,6 @@ class TapCanvasCatalog(Tap):
 
     name = "tap-canvas-catalog"
 
-    # TODO: Update this section with the actual config values you expect:
     config_jsonschema = th.PropertiesList(
         th.Property(
             "api_key",
@@ -22,11 +21,6 @@ class TapCanvasCatalog(Tap):
             required=True,
             secret=True,  # Flag config as protected.
             description="The token to authenticate against the API service",
-        ),
-        th.Property(
-            "start_date",
-            th.DateTimeType,
-            description="The earliest record date to sync",
         ),
     ).to_dict()
 

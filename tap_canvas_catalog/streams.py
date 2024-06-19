@@ -37,6 +37,14 @@ class UsersStream(CanvasCatalogStream):
             th.StringType,
         ),
         th.Property(
+            "first_name",
+            th.StringType,
+        ),
+        th.Property(
+            "last_name",
+            th.StringType,
+        ),
+        th.Property(
             "email_address",
             th.StringType,
         ),
@@ -50,6 +58,10 @@ class UsersStream(CanvasCatalogStream):
         ),
         th.Property(
             "updated_at",
+            th.DateTimeType,
+        ),
+        th.Property(
+            "time_zone",
             th.DateTimeType,
         ),
     ).to_dict()
