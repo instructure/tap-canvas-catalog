@@ -24,7 +24,10 @@ class CanvasCatalogStream(RESTStream):
     @property
     def url_base(self) -> str:
         """Return the API URL root, configurable via tap settings."""
-        return self.config.get("api_url", "")
+        api_url = self.config.get("api_url", "")
+        if not api_url:
+            raise ValueError("api_url is not set in the configuration")
+        return api_url
 
     records_jsonpath = "$[*]"  # Or override `parse_response`.
 
@@ -36,6 +39,9 @@ class CanvasCatalogStream(RESTStream):
             An authenticator instance.
         """
         api_key = self.config.get("api_key", "")
+        if not api_key:
+            raise ValueError("api_key is not set in the configuration")
+
         return APIKeyAuthenticator.create_for_stream(
             self,
             key="Authorization",
