@@ -24,7 +24,7 @@ class CanvasCatalogStream(RESTStream):
     @property
     def url_base(self) -> str:
         """Return the API URL root, configurable via tap settings."""
-        return self.config.get("api_url") or "https://catalog-dev.inseng.net/api/v1"
+        return self.config.get("api_url", "")
 
     records_jsonpath = "$[*]"  # Or override `parse_response`.
 
