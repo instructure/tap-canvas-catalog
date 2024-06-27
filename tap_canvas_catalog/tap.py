@@ -22,6 +22,13 @@ class TapCanvasCatalog(Tap):
             secret=True,  # Flag config as protected.
             description="The token to authenticate against the API service",
         ),
+        th.Property(
+            "api_url",
+            th.StringType,
+            required=True,
+            secret=False,
+            description="The URL for the Canvas Catalog API",
+        ),
     ).to_dict()
 
     def discover_streams(self) -> list[streams.CanvasCatalogStream]:
