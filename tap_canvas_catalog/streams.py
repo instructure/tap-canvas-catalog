@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from singer_sdk import typing as th  # JSON Schema typing helpers
 
@@ -10,10 +11,20 @@ from tap_canvas_catalog.client import CanvasCatalogStream
 
 class UsersStream(CanvasCatalogStream):
     name = "users"
-    path = "/users"
+    path = "/integrations/hotglue/sources/users"
     primary_keys = ["id"]
     records_jsonpath = "$.users[*]"
     replication_key = "updated_at"
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: Any | None,
+    ) -> dict[str, Any]:
+        params = super().get_url_params(context, next_page_token)
+        params["accountId"] = self.config.get("account_id", "")
+
+        return params
 
     schema = th.PropertiesList(
         th.Property(
