@@ -24,6 +24,9 @@ class UsersStream(CanvasCatalogStream):
         params = super().get_url_params(context, next_page_token)
         params["accountId"] = 1
 
+        # log params
+        self.logger.info(f"get_url_params: {params}")
+
         return params
 
     schema = th.PropertiesList(
