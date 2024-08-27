@@ -22,7 +22,7 @@ class UsersStream(CanvasCatalogStream):
         next_page_token: Any | None,
     ) -> dict[str, Any]:
         params = super().get_url_params(context, next_page_token)
-        params["accountId"] = 1
+        params["account_id"] = self.config.get("account_id")
 
         # log params
         self.logger.info(f"get_url_params: {params}")
