@@ -31,7 +31,7 @@ class TapCanvasCatalog(Tap):
         ),
         th.Property(
             "account_id",
-            th.StringType,
+            th.NumberType,
             required=False,
             secret=False,
             description="The sub-account id to pull data from",
