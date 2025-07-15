@@ -2,80 +2,50 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
 from singer_sdk import typing as th  # JSON Schema typing helpers
 
 from tap_canvas_catalog.client import CanvasCatalogStream
 
-class UsersStream(CanvasCatalogStream):
-    name = "users"
-    path = "/integrations/hotglue/sources/users"
-    primary_keys = ["id"]
-    records_jsonpath = "$.users[*]"
-    replication_key = "updated_at"
+TYPE_MAP = {
+    "bigint": th.IntegerType,
+    "character varying": th.StringType,
+    "timestamp without time zone": th.DateTimeType,
+    "json": th.CustomType({"type": ["object", "string"]}),
+    "integer": th.IntegerType,
+    "boolean": th.BooleanType,
+    "numeric": th.NumberType,
+    "text": th.StringType,
+    "jsonb": th.CustomType({"type": ["object", "string"]}),
+}
 
-    def get_url_params(
-        self,
-        context: dict | None,
-        next_page_token: Any | None,
-    ) -> dict[str, Any]:
-        params = super().get_url_params(context, next_page_token)
-        params["account_id"] = self.config.get("account_id")
+def create_stream_class(stream_name, properties):
+    schema_props = []
+    for prop in properties:
+        th_type = TYPE_MAP.get(prop["property_type"].lower(), th.StringType)
+        schema_props.append(th.Property(prop["property_name"], th_type))
+    source_schema = th.PropertiesList(*schema_props).to_dict()
 
-        # log params
-        self.logger.info(f"get_url_params: {params}")
+    class DynamicStream(CanvasCatalogStream):
+        name = stream_name
+        path = f"/integrations/hotglue/sources/{stream_name}"
+        primary_keys = ["id"]
+        records_jsonpath = f"$.{stream_name}[*]"
+        replication_key = "updated_at"
+        schema = source_schema
 
-        return params
+        def get_url_params(
+            self,
+            context: dict | None,
+            next_page_token: Any | None,
+        ) -> dict[str, Any]:
+            params = super().get_url_params(context, next_page_token)
+            params["account_id"] = self.config.get("account_id")
 
-    schema = th.PropertiesList(
-        th.Property(
-            "id",
-            th.IntegerType,
-        ),
-        th.Property(
-            "root_account_id",
-            th.IntegerType,
-        ),
-        th.Property(
-            "canvas_user_id",
-            th.IntegerType,
-        ),
-        th.Property(
-            "canvas_root_account_uuid",
-            th.StringType,
-        ),
-        th.Property(
-            "user_name",
-            th.StringType,
-        ),
-        th.Property(
-            "first_name",
-            th.StringType,
-        ),
-        th.Property(
-            "last_name",
-            th.StringType,
-        ),
-        th.Property(
-            "email_address",
-            th.StringType,
-        ),
-        th.Property(
-            "custom_fields",
-            th.CustomType({"type": ["object", "string"]}),
-        ),
-        th.Property(
-            "created_at",
-            th.DateTimeType,
-        ),
-        th.Property(
-            "updated_at",
-            th.DateTimeType,
-        ),
-        th.Property(
-            "time_zone",
-            th.DateTimeType,
-        ),
-    ).to_dict()
+            # log params
+            self.logger.info(f"get_url_params: {params}")
+
+            return params
+
+    return DynamicStream
