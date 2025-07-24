@@ -36,6 +36,13 @@ class TapCanvasCatalog(Tap):
             secret=False,
             description="The sub-account id to pull data from",
         ),
+        th.Property(
+            "include_soft_deleted",
+            th.BooleanType,
+            required=False,
+            secret=False,
+            description="Flag for including soft-deleted records",
+        ),
     ).to_dict()
 
     def discover_streams(self) -> list:

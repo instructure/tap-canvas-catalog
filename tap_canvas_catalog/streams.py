@@ -43,6 +43,10 @@ def create_stream_class(stream_name, properties):
             params = super().get_url_params(context, next_page_token)
             params["account_id"] = self.config.get("account_id")
 
+            include_soft_deleted = self.config.get("include_soft_deleted")
+            if include_soft_deleted is not None:
+                params["include_soft_deleted"] = include_soft_deleted
+
             # log params
             self.logger.info(f"get_url_params: {params}")
 
