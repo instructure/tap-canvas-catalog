@@ -12,12 +12,12 @@ TYPE_MAP = {
     "bigint": th.IntegerType,
     "character varying": th.StringType,
     "timestamp without time zone": th.DateTimeType,
-    "json": th.CustomType({"type": ["object", "string"]}),
+    "json": th.CustomType({"type": ["object", "string", "array"]}),
     "integer": th.IntegerType,
     "boolean": th.BooleanType,
     "numeric": th.NumberType,
     "text": th.StringType,
-    "jsonb": th.CustomType({"type": ["object", "string"]}),
+    "jsonb": th.CustomType({"type": ["object", "string", "array"]}),
 }
 
 def create_stream_class(stream_name, properties):
