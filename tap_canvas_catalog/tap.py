@@ -6,8 +6,8 @@ from singer_sdk import Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
 
 # TODO: Import your custom stream types here:
-from tap_canvas_catalog import streams
-
+from tap_canvas_catalog.client import fetch_catalog_source_schema
+from tap_canvas_catalog.streams import create_stream_class
 
 class TapCanvasCatalog(Tap):
     """CanvasCatalog tap class."""
@@ -36,17 +36,25 @@ class TapCanvasCatalog(Tap):
             secret=False,
             description="The sub-account id to pull data from",
         ),
+        th.Property(
+            "include_soft_deleted",
+            th.BooleanType,
+            required=False,
+            secret=False,
+            description="Flag for including soft-deleted records",
+        ),
     ).to_dict()
 
-    def discover_streams(self) -> list[streams.CanvasCatalogStream]:
-        """Return a list of discovered streams.
+    def discover_streams(self) -> list:
+        schemas = fetch_catalog_source_schema(self.config)
 
-        Returns:
-            A list of discovered streams.
-        """
-        return [
-            streams.UsersStream(self),
-        ]
+        streams = []
+        for schema in schemas:
+            stream_name = schema["stream_name"]
+            properties = schema["properties"]
+            dynamic_stream_class = create_stream_class(stream_name, properties)
+            streams.append(dynamic_stream_class(self))
+        return streams
 
 
 if __name__ == "__main__":

@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any, Callable, Iterable
 
 import requests
-import dateutil.parser
 import backoff
 
 from singer_sdk.authenticators import APIKeyAuthenticator
@@ -16,6 +15,19 @@ from singer_sdk.streams import RESTStream
 _Auth = Callable[[requests.PreparedRequest], requests.PreparedRequest]
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
+def fetch_catalog_source_schema(config: dict) -> list[dict]:
+    """Fetch stream schema definitions from Hotglue."""
+    api_url = config.get("api_url")
+    api_key = config.get("api_key")
+
+    if not api_url or not api_key:
+        raise ValueError("Missing 'api_url' or 'api_key' in config")
+
+    url = api_url.rstrip("/") + "/integrations/hotglue/source-schema"
+    headers = {"Authorization": f"Bearer {api_key}"}
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
 
 class CanvasCatalogStream(RESTStream):
     """CanvasCatalog stream class."""
